@@ -5,13 +5,7 @@ let pool;
 
 if (process.env.MYSQL_URL) {
   // Jika menggunakan string koneksi penuh (seperti di Railway/Render)
-  pool = mysql.createPool({
-    uri: process.env.MYSQL_URL,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0,
-    charset: 'utf8mb4'
-  });
+  pool = mysql.createPool(process.env.MYSQL_URL);
 } else {
   // Fallback menggunakan konfigurasi terpisah (lokal atau cloud)
   pool = mysql.createPool({
