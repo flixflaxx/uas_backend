@@ -1,0 +1,467 @@
+{
+	"info": {
+		"_postman_id": "85a1efba-8dfc-482f-b4df-22d7a22df0bc",
+		"name": "FlixxMart E-Commerce API",
+		"description": "Koleksi API Backend Node.js Express + MySQL untuk E-Commerce FlixxMart (Tugas UAS)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Status & Koneksi",
+			"item": [
+				{
+					"name": "Check API Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/status",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"status"
+							]
+						},
+						"description": "Mengecek apakah server backend berjalan dengan baik dan database terhubung."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Autentikasi",
+			"item": [
+				{
+					"name": "Register Customer Baru",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Eko Prasetyo\",\n    \"email\": \"eko@email.com\",\n    \"password\": \"eko123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login User / Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response = pm.response.json();",
+									"if (response && response.session && response.session.token) {",
+									"    pm.collectionVariables.set(\"jwt_token\", response.session.token);",
+									"    console.log(\"Token JWT berhasil disimpan ke variabel: \", response.session.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@toko.com\",\n    \"password\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Mengembalikan session dan token JWT. Token admin123/admin@toko.com secara otomatis disimpan di variabel koleksi untuk autorisasi request berikutnya."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Produk",
+			"item": [
+				{
+					"name": "Ambil Semua Produk",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/products?q=&category=&minPrice=&maxPrice=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"products"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "",
+									"description": "Filter nama/deskripsi"
+								},
+								{
+									"key": "category",
+									"value": "",
+									"description": "Filter kategori (Pakaian, Elektronik, Sepatu, Tas)"
+								},
+								{
+									"key": "minPrice",
+									"value": "",
+									"description": "Harga Minimum"
+								},
+								{
+									"key": "maxPrice",
+									"value": "",
+									"description": "Harga Maksimum"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Detail Produk (ID / Code)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/products/prod_001",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"products",
+								"prod_001"
+							]
+						},
+						"description": "Mengambil detail satu produk. Mendukung parameter ID integer maupun product_code string (misal: prod_001)."
+					},
+					"response": []
+				},
+				{
+					"name": "Tambah Produk Baru (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"product_code\": \"prod_009\",\n    \"name\": \"Topi Baseball Sport\",\n    \"price\": 85000,\n    \"category\": \"Pakaian\",\n    \"description\": \"Topi baseball sport stylish dengan bahan katun drill berkualitas.\",\n    \"image\": \"images/products/prod_009.jpg\",\n    \"stock\": 15\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/products",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Detail Produk (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Topi Baseball Premium\",\n    \"price\": 90000,\n    \"stock\": 12\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/products/prod_009",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"products",
+								"prod_009"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Hapus Produk (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/products/prod_009",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"products",
+								"prod_009"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Order & Checkout",
+			"item": [
+				{
+					"name": "Proses Checkout Pesanan",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Budi Santoso\",\n    \"phone\": \"08123456789\",\n    \"address\": \"Jl. Merdeka No. 10, Jakarta Pusat\",\n    \"items\": [\n        {\n            \"productId\": \"prod_001\",\n            \"quantity\": 2\n        },\n        {\n            \"productId\": \"prod_004\",\n            \"quantity\": 1\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/checkout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"checkout"
+							]
+						},
+						"description": "Mengirim pesanan, mengurangi stok, membuat link WhatsApp redirect, serta mengirim notifikasi gateway jika aktif."
+					},
+					"response": []
+				},
+				{
+					"name": "Ambil Riwayat Pesanan",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/orders",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"orders"
+							]
+						},
+						"description": "Jika login sebagai Admin: mengambil seluruh pesanan masuk. Jika login sebagai Customer biasa: hanya mengambil riwayat pesanan miliknya sendiri."
+					},
+					"response": []
+				},
+				{
+					"name": "Ubah Status Pesanan (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"paid\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/orders/TXN-1719999999999-1234/status",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"orders",
+								"TXN-1719999999999-1234",
+								"status"
+							]
+						},
+						"description": "Ubah parameter ID transaksi di URL dengan ID transaksi asli yang ada di database. Status yang valid: pending, paid, shipped, done, failed, cancellation_requested, refunded_cancelled."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Metrik Laporan Admin",
+			"item": [
+				{
+					"name": "Statistik Pelanggan",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/customers",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"customers"
+							]
+						},
+						"description": "Mengambil seluruh pelanggan terdaftar beserta metrik jumlah pesanan dan total belanja bersih."
+					},
+					"response": []
+				},
+				{
+					"name": "Laporan Penjualan Kategori",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/reports/category-sales",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"reports",
+								"category-sales"
+							]
+						},
+						"description": "Mengambil rincian total omzet/penjualan per kategori (Pakaian, Elektronik, Sepatu, Tas) untuk dirender di Chart.js panel admin."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000/api",
+			"type": "string"
+		},
+		{
+			"key": "jwt_token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

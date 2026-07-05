@@ -1,0 +1,89 @@
+@baseUrl = http://localhost:3000/api
+
+### 1. Mengecek Status Koneksi API & Database
+GET {{baseUrl}}/status
+
+### 2. Registrasi Customer Baru
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Eko Prasetyo",
+  "email": "eko@email.com",
+  "password": "eko123"
+}
+
+### 3. Login Admin (Gunakan Response Token di Request Selanjutnya)
+# Salin nilai token dari respon di bawah dan masukkan ke variabel @token di baris 26
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@toko.com",
+  "password": "admin123"
+}
+
+### Token JWT (Ganti token di bawah dengan token hasil Login di atas)
+@token = token_jwt_hasil_login_di_sini
+
+### 4. Ambil Semua Produk (Mendukung Pencarian/Filter)
+GET {{baseUrl}}/products?q=&category=&minPrice=&maxPrice=
+
+### 5. Detail Satu Produk berdasarkan Kode
+GET {{baseUrl}}/products/prod_001
+
+### 6. Tambah Produk Baru (Memerlukan Akses Admin/Token)
+POST {{baseUrl}}/products
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "product_code": "prod_009",
+  "name": "Topi Baseball Sport",
+  "price": 85000,
+  "category": "Pakaian",
+  "description": "Topi baseball sport stylish dengan bahan katun drill berkualitas.",
+  "image": "images/products/prod_009.jpg",
+  "stock": 15
+}
+
+### 7. Proses Checkout Pesanan & Integrasi WhatsApp
+POST {{baseUrl}}/checkout
+Content-Type: application/json
+
+{
+  "name": "Budi Santoso",
+  "phone": "08123456789",
+  "address": "Jl. Merdeka No. 10, Jakarta Pusat",
+  "items": [
+    {
+      "productId": "prod_001",
+      "quantity": 2
+    },
+    {
+      "productId": "prod_004",
+      "quantity": 1
+    }
+  ]
+}
+
+### 8. Ambil Riwayat Pesanan (Memerlukan Token)
+GET {{baseUrl}}/orders
+Authorization: Bearer {{token}}
+
+### 9. Ubah Status Pesanan (Ganti ID Transaksi di URL dengan ID Transaksi Nyata)
+PUT {{baseUrl}}/orders/TXN-1719999999999-1234/status
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "status": "paid"
+}
+
+### 10. Laporan Statistik Pelanggan (Admin Only)
+GET {{baseUrl}}/admin/customers
+Authorization: Bearer {{token}}
+
+### 11. Grafik Omzet Penjualan Kategori (Admin Only)
+GET {{baseUrl}}/admin/reports/category-sales
+Authorization: Bearer {{token}}
