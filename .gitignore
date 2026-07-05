@@ -30,3 +30,8 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
+
+# Temporary and backup files
+scratch_test.js
+*.bak
+
